@@ -45,7 +45,7 @@ let mainWindow;
 app.on('ready', () => {
     mainWindow = new BrowserWindow({});
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
+        pathname: path.join(__dirname,'ui', 'html', 'index.html'),
         protocol: 'file:',
         slashes: true
     }));
@@ -53,10 +53,23 @@ app.on('ready', () => {
         app.quit();
     });
 
-    mainWindow.setMenu(null); //For No menu
+    if(process.env.NODE_ENV === 'production')
+        mainWindow.setMenu(null); //For No menu
 
     //On startup update/find all texts
-    request({
+    updateMessages()
+        .then((threads) => {
+            return Thread.find({})
+            .sort({last_updated: -1})
+            .lean();
+        })
+        .then((threads) => {
+            mainWindow.webContents.send('init:threads', threads);
+        });
+});
+
+let updateMessages = () => {
+    return request({
         uri: `${api_url}/v2/permanents/${config.device_iden}_threads`,
         headers: { 'Access-Token': config.access_token },
         json: true
@@ -77,10 +90,13 @@ app.on('ready', () => {
             });
             return Promise.all(promises)
         })
-        .then(() => {
-            return Thread.find({});
-        })
-        .then((threads) => {
-            console.log(threads);
-        })
-});
+        .then((added) => {
+            return added;
+            // return Thread.find({})
+            //     .sort({ last_updated: -1 });
+        });
+};
+
+let devTools = [{
+
+}]

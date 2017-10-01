@@ -59,6 +59,7 @@ threadSchema.methods.updateMessages = function(messages){
     let thread = this;
     let last_updated = thread.last_updated;
     let toAdd = [];
+    messages = messages.sort(sortMessages);
     messages.forEach((message) => {
         if(message.timestamp > last_updated)
             last_updated = message.timestamp;
@@ -74,7 +75,15 @@ threadSchema.methods.updateMessages = function(messages){
     });
     thread.last_updated = last_updated;
     thread.messages = thread.messages.concat(toAdd);
-    return thread.save();
+    return thread.save()
+        .then(() => {
+            return {
+                id: thread.pb_id,
+                messages: toAdd,
+                recipients: thread.recipients.toObject(),
+                last_updated: thread.last_updated
+            };
+        });
 };
 
 threadSchema.statics.findOutdated = function(threads){
