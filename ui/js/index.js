@@ -4,7 +4,6 @@ const $ = require('jquery');
 
 ipcRenderer.on('init:threads', function(event, threads){
     let mainContents = $('.main-container');
-    console.log(JSON.stringify(threads, undefined, 2));
     setLoading(false);
 });
 

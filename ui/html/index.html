@@ -1,21 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link rel='stylesheet' href='../css/index.css'/>
+    <link rel='stylesheet' href='../css/index.css' />
 </head>
-<body>
+
+<body class='chat'>
     <div class='loading'>
         <img src='../images/loading.gif' />
     </div>
 
     <div class='main-container' hidden>
+        <div class='conversations__sidebar'>
+            <div id='conversations'>
+                <ul class='conversations__list'>
+                    <li class='conversation' id="{{pb_id}}_conversation">
+                        <img class='conversation__image' src="../images/test.jpg" />
+                        <span class='names'>Brian Zimmerman</span>
+                        <span class='time'>5:57 PM</span>
+                        <span class='message__preview'>Heyasd sakfdjn sadkfj asdkjs sd sdjk sjd sdj</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class='message__container'>
+            <div class='text__container'>
+                <div class='message to'>Hello</div>
+            </div>
+            <div class='text__container'>
+                <div class='message from'>
+                    Hey
+                    <span class='message__sender'>Brian Zimmerman</span>
+                </div>
+            </div>
+            <div class='text__container'>
+                    <div class='message to'>
+                        Your face looks like shit
+                    </div>
+            </div>
+        </div>
 
     </div>
 
+    <script id='conversation__template' type='text/template'>
+        <li class='conversation' id="{{pb_id}}_conversation">
+            <img class='conversation__image' src="{{img_src}}" />
+            <span class='names'>{{recipient_names}}</span>
+            <span class='time' id="{{pb_id}}_last_updated">{{last_updated}}</span>
+            <span class='message__preview' id="{{pb_id}}_preview">{{message}}</span>
+        </li>
+    </script>
     <script src='../js/index.js'></script>
 </body>
+
 </html>
