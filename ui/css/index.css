@@ -89,6 +89,7 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     line-height: 1.2;
+    font-size: 15px;
 }
 
 .time {
@@ -98,6 +99,7 @@
    /* position: absolute;
     right: 72vw;
     top: 7px; */
+    font-size: 15px;
 }
 
 .message__sender {
@@ -111,6 +113,7 @@
     margin: 0 15px 10px;
     padding: 15px 20px;
     position: relative;
+    max-width: 50%;
 }
 .message.to {
     background-color: #E5E4E9;
