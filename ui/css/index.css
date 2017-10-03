@@ -31,7 +31,10 @@
     height: 100vh;
     overflow-x: hidden;
     background-color: lightgray;
-    width:530px;
+    /*width:530px;*/
+
+    flex-shrink: 0;
+    width: 300px;
 }
 
 .conversations__list {
@@ -43,6 +46,11 @@
 .text__container {
     float: right;
     width: 100%;
+}
+
+.name__time {
+    display: flex;
+    justify-content: space-between;
 }
 
 .conversation {
@@ -62,7 +70,7 @@
 }
 
 .names {
-    width: 16vw;
+  /*  width: 16vw;*/
     text-overflow: ellipsis;
     padding-left: 5px;
     font-weight: 600;
@@ -74,13 +82,14 @@
 .conversation__container {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    /*width: 100%;*/
+
+    width: calc(100% - 300px);
 }
 
 .messages__container {
     padding-top: 10px;
-    flex:1;
-    flex-grow: 25;
+    flex-grow: 1;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -103,14 +112,61 @@
     line-height: 1.2;
     font-size: 15px;
     
-    margin-top: -5px;
+    /*margin-top: -5px;*/
+}
+
+.recipient__image{
+    width: 40px;
+    height: 40px;  
+    border-radius: 50%; 
+}
+
+.recipients__container {
+    height: 60px;
+    vertical-align: middle;
+    background: lightgrey;
+    display: flex;
+
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.recipient__divider {
+    width: 3px;
+    margin: 6px 0;
+    background: darkgrey;
+}
+
+.recipient {
+    /*height: 100%;
+    width: 100%;*/
+    display: flex;
+    align-items: center;
+
+   height: 96%;
+   width: 200px;
+   border: 1px solid darkgrey;
+
+   flex-shrink: 0;
+
+}
+
+.recipient__name {
+    padding-left: 5px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .time {
-    float: right;
+    /*float: right;*/
     color: lightslategray;
     padding-right: 10px;
     font-size: 15px;
+
+    padding-left: 5px;
+    white-space: nowrap;
 }
 
 .message__sender {
