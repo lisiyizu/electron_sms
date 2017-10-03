@@ -102,6 +102,8 @@
     -webkit-box-orient: vertical;
     line-height: 1.2;
     font-size: 15px;
+    
+    margin-top: -5px;
 }
 
 .time {
