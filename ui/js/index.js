@@ -62,22 +62,74 @@ var createConversationContainer = function (thread) {
     var conversationContainer = $('#thread__template').html();
     mainContainer.append(Mustache.render(conversationContainer, { pb_id: thread.pb_id }));
     conversationContainer = $('#' + thread.pb_id + '__conversation');
+
     $('.recipients__container', conversationContainer).html(makeRecipientsList(thread.recipients));
+
     var messagesContainer = $('.messages__container', conversationContainer);
     fillMessages(thread.recipients, thread.messages, messagesContainer);
+
     messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+
     return conversationContainer;
 }
 
 var fillMessages = function (recipients, messages, container) {
     messages.forEach(function (message) {
         if (message.direction === "incoming") {
-            container.append(createIncomingMessage(recipients, message));
+            if (message.image_urls) {
+                message.image_urls.forEach(function (url) {
+                    var toAdd = createIncomingImage(url, recipients, message);
+                    addMessageToContainer(container, message.timestamp, toAdd);
+                });
+            }
+            if (message.body) {
+                var toAdd = createIncomingMessage(recipients, message);
+                addMessageToContainer(container, message.timestamp, toAdd);
+            }
         } else {
-            container.append(createOutgoingMessage(message));
+            if (message.image_urls) {
+                message.image_urls.forEach(function (url) {
+                    var toAdd = createOutgoingImage(url, message);
+                    addMessageToContainer(container, message.timestamp, toAdd);
+                });
+            }
+            if (message.body) {
+                var toAdd = createOutgoingMessage(message);
+                addMessageToContainer(container, message.timestamp, toAdd);
+            }
         }
     });
+};
+
+var addMessageToContainer = function (container, timestamp, element) {
+    var currentMessages = $('.text__container', container);
+    var added = false;
+    currentMessages.each(function () {
+        if ($(this).data('timestamp') > timestamp) {
+            element.insertBefore($(this));
+            added = true;
+            return false; //break
+        }
+    });
+    if (!added) {
+        container.append(element)
+    }
 }
+
+var createIncomingImage = function (url, recipients, message) {
+    var mmsTemplate = $('#image__from').html();
+
+    return Mustache.render(mmsTemplate, {
+        image_src: url,
+        sender: recipients.length > 1 ? recipients[message.recipient_index].name : "",
+        timestamp: message.timestamp
+    });
+};
+
+var createOutgoingImage = function (url, message) {
+    var mmsTemplate = $('#image__to').html();
+    return Mustache.render(mmsTemplate, { image_src: url, timestamp: message.timestamp });
+};
 
 var makeRecipientsList = function (recipients) {
     var recipientNames = "";
@@ -94,14 +146,18 @@ var makeRecipientsList = function (recipients) {
 
 var createOutgoingMessage = function (message) {
     var messageTemplate = $('#message__to').html();
-    return Mustache.render(messageTemplate, { message: message.body });
+    return Mustache.render(messageTemplate, {
+        message: message.body,
+        timestamp: message.timestamp
+    });
 }
 
 var createIncomingMessage = function (recipients, message) {
     var messageTemplate = $('#message__from').html();
     return Mustache.render(messageTemplate, {
         message: message.body,
-        sender: (recipients.length > 1) ? recipients[message.recipient_index].name : ""
+        sender: (recipients.length > 1) ? recipients[message.recipient_index].name : "",
+        timestamp: message.timestamp
     });
 };
 
@@ -116,10 +172,22 @@ var addConversationSelector = function (thread) {
         var image = userImage;
     }
 
-    if((Date.now() / 1000) - thread.last_updated < 86400) {
+    if ((Date.now() / 1000) - thread.last_updated < 86400) {
         var last_updated = moment.unix(thread.last_updated).format('LT');
     } else {
         var last_updated = moment.unix(thread.last_updated).format('M/D/YY');
+    }
+
+    var message = thread.messages[thread.messages.length - 1];
+    if (message.body) {
+        message = message.body
+    } else if (message.image_urls && message.image_urls.length) {
+        if (message.direction == 'incoming')
+            message = 'You recieved a picture';
+        else
+            message = 'You sent a picture';
+    } else {    //Should never happen
+        message = '';
     }
 
     var selector = Mustache.render(selectorTemplate, {

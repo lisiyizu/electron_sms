@@ -10,16 +10,28 @@ const { mongoose } = require('./db/mongoose');
 const { Thread } = require('./db/models/thread');
 
 const api_url = 'https://api.pushbullet.com';
-/*
+
 let socket = new WebSocket(`wss://stream.pushbullet.com/websocket/${config['access_token']}`);
 socket.onmessage = (message) => {
     let data = JSON.parse(message.data);
     if(data.type === 'push' && data.push.type === 'sms_changed') {
-        let thread_id = data.push.notifications[0].thread_id;
+        let pb_id = data.push.notifications[0].thread_id;
+        let timestamp = data.push.notifications[0].timestamp;
+        let thread = {
+            pb_id
+        };
         request({
-            url: api_url + `/v2/permanents/${config.device_iden}_thread_${thread_id}`,
-            headers: {'Access-Token': config.access_token}
-        }, (err, res, body) => {
+            uri: api_url + `/v2/permanents/${config.device_iden}_thread_${thread_id}`,
+            headers: {'Access-Token': config.access_token},
+            json: true
+        })
+            .then((res) => {
+
+            })
+        
+        
+        
+        /*(err, res, body) => {
             if(!err) {
                 Thread.find({pb_id: thread_id})
                     .then((thread) => {
@@ -36,9 +48,9 @@ socket.onmessage = (message) => {
                         console.log(err);
                     })
             }
-        });
+        });*/
     }
-};*/
+};
 
 let mainWindow;
 
@@ -92,11 +104,5 @@ let updateMessages = () => {
         })
         .then((added) => {
             return added;
-            // return Thread.find({})
-            //     .sort({ last_updated: -1 });
         });
 };
-
-let devTools = [{
-
-}]

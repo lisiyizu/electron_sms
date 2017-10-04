@@ -20,109 +20,14 @@
         <div class='conversations__sidebar'>
             <div class='conversations'>
                 <ul class='conversations__list'>
-                <!--    <li class='conversation' id="{{pb_id}}_conversation">
-                        <img class='conversation__image' src="../images/test.jpg" />
-                        <span class='preview__data'>
-                            <span class='name__time'>
-                                <span class='names'>Brian Zimmerman</span>
-                        <span class='time'>5:57 PM</span>
-                        </span>
-                        <span class='message__preview'>This is a really super long text.  The preview for it should have ellipis after two lines.</span>
-                        </span>
-                    </li>
-                    <li class='conversation' id="{{pb_id}}_conversation">
-                        <i class='fa fa-circle' aria-hidden='true'></i>
-                        <img class='conversation__image' src="../images/test.jpg" />
-                        <span class='preview__data'>
-                            <span class='name__time'>
-                                <span class='names'>Barack Obama, Michelle Obama</span>
-                        <span class='time'>11/22/13</span>
-                        </span>
-                        <span class='message__preview'>How are you</span>
-                        </span>
-
-                    </li> -->
                 </ul>
             </div>
         </div>
-        <!--
-        <div class='conversation__container'>
-            <div class='recipients__container'>
-                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
-                <img class='recipient__image' src='../images/user.png'>Billy Madison,
-                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
-                <img class='recipient__image' src='../images/user.png'>Billy Madison,
-                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
-                <img class='recipient__image' src='../images/user.png'>Billy Madison,
-                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
-                <img class='recipient__image' src='../images/user.png'>Billy Madison
-            </div>
-            <div class='messages__container'>
-                <div class='text__container'>
-                    <div class='message to'>Hello</div>
-                </div>
-                <div class='text__container'>
-                    <div class='message from'>
-                        Hey
-                        <span class='message__sender'>Brian Zimmerman</span>
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message to'>
-                        I'm hungry
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message from'>
-                        I'm coming for you
-                        <span class='message__sender'>Brian Zimmerman</span>
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message to'>
-                        Let's eat
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message from'>
-                        I'm coming for you
-                        <span class='message__sender'>Brian Zimmerman</span>
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message to'>
-                        Let's eat
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message from'>
-                        Hey
-                        <span class='message__sender'>Brian Zimmerman</span>
-                    </div>
-                </div>
-                <div class='text__container'>
-                    <div class='message from'>
-                        Hey
-                        <span class='message__sender'>Brian Zimmerman</span>
-                    </div>
-                </div>
-            </div>
-            <div class='message__input'>
-                <form class='sms__form pure-form'>
-                    <input name='message' class='sms__form__elements pure-input-rounded' placeholder="Message" autocomplete="off" type='text'
-                        autofocus />
-                    <button class='sms__form__elements pure-button pure-button-primary'>
-                        <i class='fa fa-paper-plane' aria-hidden="true"></i>
-                        Send
-                    </button>
-                </form>
-            </div>
-        </div> -->
     </div>
 
     <script id='conversation__template' type='text/template'>
         <li class='conversation' data-conversation="{{pb_id}}__conversation">
-            <i class='fa fa-circle' aria-hidden='true'></i>
+            <i class='fa' aria-hidden='true'></i>
             <img class='conversation__image' src="{{image}}" />
             <span class='preview__data'>
                 <span class='name__time'>
@@ -135,15 +40,32 @@
     </script>
 
     <script id='message__to' type='text/template'>
-        <div class='text__container'>
+        <div class='text__container' data-timestamp="{{timestamp}}">
             <div class='message to'>
                 {{message}}
             </div>
         </div>
     </script>
 
+    <script id='image__to' type='text/template'>
+        <div class='text__container' data-timestamp="{{timestamp}}">
+            <div class='message to'>
+                <img class='mms__image' src="{{image_src}}" />
+            </div>
+        </div>
+    </script>
+
+    <script id='image__from' type='text/template'>
+        <div class='text__container' data-timestamp="{{timestamp}}">
+            <div class='message from'>
+                <img class='mms__image' src="{{image_src}}" />
+                <span class='message__sender'>{{sender}}</span>
+            </div>
+        </div>
+    </script>
+
     <script id='message__from' type='text/template'>
-        <div class='text__container'>
+        <div class='text__container' data-timestamp="{{timestamp}}">
             <div class='message from'>
                 {{message}}
                 <span class='message__sender'>{{sender}}</span>

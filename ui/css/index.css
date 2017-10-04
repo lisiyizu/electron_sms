@@ -27,7 +27,7 @@
 
 .conversations__sidebar {
     height: 100vh;
-    background-color: #343B81;
+    background-color: #3f67cb;
     flex-shrink: 0;
     width: 300px;
 }
@@ -76,6 +76,7 @@
     height: 45px;  
     border-radius: 50%;  
     float: left;
+    flex-shrink: 0;
 }
 
 .preview__data {
@@ -220,7 +221,7 @@
 
 .message.from {
     /*background-color: #2095FE;*/
-    background-color: #4952b6;
+    background-color: #3f67cb;
     color: #fff;
     margin-right: 80px;
     float: left;
@@ -247,9 +248,13 @@
     z-index: -1;
 }
 
+.mms__image {
+    max-width: 100%;
+}
+
 .message.from:before {
     /*border-color: #2095FE;*/
-    border-color: #4952b6;    
+    border-color: #3f67cb;    
     left: -50px;
     transform: rotateY(180deg);
 }
