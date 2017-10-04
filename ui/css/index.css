@@ -62,7 +62,7 @@
     height: 80px;
     display: flex;
     align-items: center;
-    display: relative;
+    position: relative;
 }
 
 .conversation:not(.selected):hover {
@@ -256,10 +256,9 @@
 
 .fa-circle {
     color: deepskyblue;
-    position: relative;
-    display: absolute;
+    position: absolute;
     top: 5px;
-    right: 280px;
+    left: 280px;
 }
 
 ::-webkit-scrollbar {
