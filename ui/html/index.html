@@ -31,6 +31,7 @@
                         </span>
                     </li>
                     <li class='conversation' id="{{pb_id}}_conversation">
+                        <i class='fa fa-circle' aria-hidden='true'></i>
                         <img class='conversation__image' src="../images/test.jpg" />
                         <span class='preview__data'>
                             <span class='name__time'>
@@ -47,7 +48,18 @@
 
         <div class='conversation__container'>
             <div class='recipients__container'>
-                Brian Zimmerman and Billy Madison
+                <img class='recipient__image' src='../images/test.jpg'>
+                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/user.png'>Billy Madison,
+                <img class='recipient__image' src='../images/test.jpg'>
+                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/user.png'>Billy Madison,
+                <img class='recipient__image' src='../images/test.jpg'>
+                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/user.png'>Billy Madison,
+                <img class='recipient__image' src='../images/test.jpg'>
+                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/user.png'>Billy Madison
             </div>
             <div class='messages__container'>
                 <div class='text__container'>
@@ -75,6 +87,29 @@
                         Let's eat
                     </div>
                 </div>
+                <div class='text__container'>
+                    <div class='message from'>
+                        I'm coming for you
+                        <span class='message__sender'>Brian Zimmerman</span>
+                    </div>
+                </div>
+                <div class='text__container'>
+                    <div class='message to'>
+                        Let's eat
+                    </div>
+                </div>
+                <div class='text__container'>
+                    <div class='message from'>
+                        Hey
+                        <span class='message__sender'>Brian Zimmerman</span>
+                    </div>
+                </div>
+                <div class='text__container'>
+                    <div class='message from'>
+                        Hey
+                        <span class='message__sender'>Brian Zimmerman</span>
+                    </div>
+                </div>
             </div>
             <div class='message__input'>
                 <form class='sms__form pure-form'>
@@ -91,13 +126,14 @@
 
     <script id='conversation__template' type='text/template'>
         <li class='conversation' id="{{pb_id}}_conversation">
-            <img class='conversation__image' src="{{img_src}}" />
-            <span class='preview__data'>                    
+            <i class='fa fa-circle' aria-hidden='true'></i>
+            <img class='conversation__image' src="{{image}}" />
+            <span class='preview__data'>
                 <span class='name__time'>
-                    <span class='names'>{{recipient_names}}</span>
-            <span class='time' id="{{pb_id}}_last_updated">{{last_updated}}</span>
-            </span>
-            <span class='message__preview' id="{{pb_id}}_preview">{{message}}</span>
+                        <span class='names'>{{names}}</span>
+                <span class='time'>{{last_updated}}</span>
+                </span>
+                <span class='message__preview'>{{message}}</span>
             </span>
         </li>
     </script>

@@ -5,6 +5,7 @@ const $ = require('jquery');
 ipcRenderer.on('init:threads', function(event, threads){
     let mainContents = $('.main-container');
     setLoading(false);
+    $('.conversation:first-child').click();
 });
 
 let setLoading = function(isLoading) {
@@ -23,4 +24,4 @@ $('.conversation').click(function() {
     if(lastSelected) { $(lastSelected).toggleClass('selected'); }
     lastSelected = this;
     $(this).toggleClass('selected');
-})
+});
