@@ -9,32 +9,48 @@ const usersImage = '../images/users.png';
 
 var lastSelected, mainWindow, allThreads = {};
 var mainContainer = $('.main-container');
-
+var isLoading = true;
 
 ipcRenderer.on('init:threads', function (event, threads) {
-    threads.forEach(function (thread) {
-        var conversationContainer = initConversation(thread);
-        mainContainer.append(conversationContainer);
-        allThreads[thread.pb_id] = {
-            pb_id: thread.pb_id,
-            recipients: thread.recipients,
-            last_updated: thread.last_updated,
-            conversationContainer: conversationContainer
-        };
-    })
+    threads.forEach(addConversation);
     setLoading(false);
     resetListeners();
     $('.conversation:first-child').click();
 });
 
-var setLoading = function (isLoading) {
-    if (isLoading) {
+ipcRenderer.on('sms_update', function(event, thread) {
+    if(allThreads[thread.pb_id]) {
+        var storedThread = allThreads[thread.pb_id];
+        fillMessages(
+            storedThread.recipients,
+            thread.messages,
+            $('.messages__container', storedThread.conversationContainer)
+        );
+    } else {
+        addConversation(thread);
+    }
+});
+
+var addConversation = function(thread) {
+    var conversationContainer = initConversation(thread);
+    mainContainer.append(conversationContainer);
+    allThreads[thread.pb_id] = {
+        pb_id: thread.pb_id,
+        recipients: thread.recipients,
+        last_updated: thread.last_updated,
+        conversationContainer: conversationContainer
+    };
+}
+
+var setLoading = function (loading) {
+    if (loading) {
         $('.loading').attr('hidden', false);
         $('.main-container').attr('hidden', true);
     } else {
         $('.loading').attr('hidden', true);
         $('.main-container').attr('hidden', false);
     }
+    isLoading = loading;
 }
 
 var resetListeners = function () {
@@ -68,37 +84,74 @@ var createConversationContainer = function (thread) {
     var messagesContainer = $('.messages__container', conversationContainer);
     fillMessages(thread.recipients, thread.messages, messagesContainer);
 
-    messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
-
     return conversationContainer;
 }
 
-var fillMessages = function (recipients, messages, container) {
+var fillMessages = function (recipients, messages, container, move) {
     messages.forEach(function (message) {
         if (message.direction === "incoming") {
             if (message.image_urls) {
                 message.image_urls.forEach(function (url) {
                     var toAdd = createIncomingImage(url, recipients, message);
-                    addMessageToContainer(container, message.timestamp, toAdd);
+                    if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                        updatePreview(message, container.parent().attr('id'));
+                    }
                 });
             }
             if (message.body) {
                 var toAdd = createIncomingMessage(recipients, message);
-                addMessageToContainer(container, message.timestamp, toAdd);
+                if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                    updatePreview(message, container.parent().attr('id'));
+                }
             }
         } else {
             if (message.image_urls) {
                 message.image_urls.forEach(function (url) {
                     var toAdd = createOutgoingImage(url, message);
-                    addMessageToContainer(container, message.timestamp, toAdd);
+                    if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                        updatePreview(message, container.parent().attr('id'));
+                    }
                 });
             }
             if (message.body) {
                 var toAdd = createOutgoingMessage(message);
-                addMessageToContainer(container, message.timestamp, toAdd);
+                if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                    updatePreview(message, container.parent().attr('id'));
+                }
             }
         }
     });
+};
+
+var formatTime = function(seconds) { 
+    if ((Date.now() / 1000) - seconds < 86400) {
+        return moment.unix(seconds).format('LT');
+    } else {
+        return moment.unix(seconds).format('M/D/YY');
+    }
+};
+
+var formatMessage = function(message) {
+    if (message.body) {
+        return message.body
+    } else if (message.image_urls && message.image_urls.length) {
+        if (message.direction == 'incoming')
+            return 'You recieved a picture';
+        else
+            return 'You sent a picture';
+    } else {
+        return '';
+    }
+};
+
+var updatePreview = function(message, id) {
+    var preview = $("[data-conversation="+id+"]");
+    $('.time', preview).text(formatTime(message.timestamp));
+    $('.message__preview', preview).text(formatMessage(message));
+    if(!isLoading && !preview.is(':first-child')) {
+        var container = preview.parent();
+        preview.hide().prependTo(container).show('slow');
+    }
 };
 
 var addMessageToContainer = function (container, timestamp, element) {
@@ -106,7 +159,7 @@ var addMessageToContainer = function (container, timestamp, element) {
     var added = false;
     currentMessages.each(function () {
         if ($(this).data('timestamp') > timestamp) {
-            element.insertBefore($(this));
+            $(element).insertBefore($(this));
             added = true;
             return false; //break
         }
@@ -114,6 +167,7 @@ var addMessageToContainer = function (container, timestamp, element) {
     if (!added) {
         container.append(element)
     }
+    return !added;
 }
 
 var createIncomingImage = function (url, recipients, message) {
@@ -172,30 +226,14 @@ var addConversationSelector = function (thread) {
         var image = userImage;
     }
 
-    if ((Date.now() / 1000) - thread.last_updated < 86400) {
-        var last_updated = moment.unix(thread.last_updated).format('LT');
-    } else {
-        var last_updated = moment.unix(thread.last_updated).format('M/D/YY');
-    }
-
     var message = thread.messages[thread.messages.length - 1];
-    if (message.body) {
-        message = message.body
-    } else if (message.image_urls && message.image_urls.length) {
-        if (message.direction == 'incoming')
-            message = 'You recieved a picture';
-        else
-            message = 'You sent a picture';
-    } else {    //Should never happen
-        message = '';
-    }
 
     var selector = Mustache.render(selectorTemplate, {
         pb_id: thread.pb_id,
         image: image,
-        last_updated: last_updated,
+        last_updated: formatTime(thread.last_updated),
         names: joinRecipients(thread.recipients),
-        message: thread.messages[thread.messages.length - 1].body
+        message: formatMessage(message)
     });
 
     $('.conversations__list').append(selector);
