@@ -16,3 +16,11 @@ let setLoading = function(isLoading) {
         $('.main-container').attr('hidden', false);
     }
 }
+
+let lastSelected;
+
+$('.conversation').click(function() {
+    if(lastSelected) { $(lastSelected).toggleClass('selected'); }
+    lastSelected = this;
+    $(this).toggleClass('selected');
+})

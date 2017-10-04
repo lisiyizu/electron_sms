@@ -38,82 +38,55 @@
                         <span class='time'>11/22/13</span>
                         </span>
                         <span class='message__preview'>How are you</span>
-                        <span class='preview__data'>
-                                
-                        </li>
+                        </span>
+
+                    </li>
                 </ul>
             </div>
         </div>
 
         <div class='conversation__container'>
             <div class='recipients__container'>
-                <div class='recipient'>
-                    <img class='recipient__image' src="../images/test.jpg" />
-                    <span class='recipient__name'>Brian Zimmerman</span>
+                Brian Zimmerman and Billy Madison
             </div>
-            <div class='recipient'>
-                <img class='recipient__image' src="../images/test.jpg" />
-                <span class='recipient__name'>Bill Goat</span>
-            </div>
-            <div class='recipient'>
-                <img class='recipient__image' src="../images/test.jpg" />
-                <span class='recipient__name'>Brian Zimmerman</span>
-            </div>
-            <div class='recipient'>
-                <img class='recipient__image' src="../images/test.jpg" />
-                <span class='recipient__name'>Bill Goat</span>
-            </div>
-            <div class='recipient'>
-                <img class='recipient__image' src="../images/test.jpg" />
-                <span class='recipient__name'>Bill Goat</span>
-            </div>
-            <div class='recipient'>
-                <img class='recipient__image' src="../images/test.jpg" />
-                <span class='recipient__name'>Brian Zimmerman</span>
-            </div>
-            <div class='recipient'>
-                <img class='recipient__image' src="../images/test.jpg" />
-                <span class='recipient__name'>Bill Goat</span>
-            </div>
-        </div>
-        <div class='messages__container'>
-            <div class='text__container'>
-                <div class='message to'>Hello</div>
-            </div>
-            <div class='text__container'>
-                <div class='message from'>
-                    Hey
-                    <span class='message__sender'>Brian Zimmerman</span>
+            <div class='messages__container'>
+                <div class='text__container'>
+                    <div class='message to'>Hello</div>
+                </div>
+                <div class='text__container'>
+                    <div class='message from'>
+                        Hey
+                        <span class='message__sender'>Brian Zimmerman</span>
+                    </div>
+                </div>
+                <div class='text__container'>
+                    <div class='message to'>
+                        I'm hungry
+                    </div>
+                </div>
+                <div class='text__container'>
+                    <div class='message from'>
+                        I'm coming for you
+                        <span class='message__sender'>Brian Zimmerman</span>
+                    </div>
+                </div>
+                <div class='text__container'>
+                    <div class='message to'>
+                        Let's eat
+                    </div>
                 </div>
             </div>
-            <div class='text__container'>
-                <div class='message to'>
-                    I'm hungry
-                </div>
-            </div>
-            <div class='text__container'>
-                <div class='message from'>
-                    I'm coming for you
-                    <span class='message__sender'>Brian Zimmerman</span>
-                </div>
-            </div>
-            <div class='text__container'>
-                <div class='message to'>
-                    Let's eat
-                </div>
-            </div>
-        </div>
-        <div class='message__input'>
-            <form class='sms__form pure-form'>
-                <input name='message' class='sms__form__elements pure-input-rounded' placeholder="Message" autocomplete="off" type='text'
-                    autofocus />
-                <button class='sms__form__elements pure-button pure-button-primary'>
+            <div class='message__input'>
+                <form class='sms__form pure-form'>
+                    <input name='message' class='sms__form__elements pure-input-rounded' placeholder="Message" autocomplete="off" type='text'
+                        autofocus />
+                    <button class='sms__form__elements pure-button pure-button-primary'>
                         <i class='fa fa-paper-plane' aria-hidden="true"></i>
                         Send
                     </button>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
     </div>
 
     <script id='conversation__template' type='text/template'>
@@ -122,9 +95,9 @@
             <span class='preview__data'>                    
                 <span class='name__time'>
                     <span class='names'>{{recipient_names}}</span>
-                <span class='time' id="{{pb_id}}_last_updated">{{last_updated}}</span>
-                </span>
-                <span class='message__preview' id="{{pb_id}}_preview">{{message}}</span>
+            <span class='time' id="{{pb_id}}_last_updated">{{last_updated}}</span>
+            </span>
+            <span class='message__preview' id="{{pb_id}}_preview">{{message}}</span>
             </span>
         </li>
     </script>
