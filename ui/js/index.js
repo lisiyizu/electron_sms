@@ -151,6 +151,7 @@ var updatePreview = function(message, id) {
     if(!isLoading && !preview.is(':first-child')) {
         var container = preview.parent();
         preview.hide().prependTo(container).show('slow');
+        preview.find('i').addClass('fa-circle');
     }
 };
 
