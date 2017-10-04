@@ -18,9 +18,9 @@
 
     <div class='main-container' hidden>
         <div class='conversations__sidebar'>
-            <div id='conversations'>
+            <div class='conversations'>
                 <ul class='conversations__list'>
-                    <li class='conversation' id="{{pb_id}}_conversation">
+                <!--    <li class='conversation' id="{{pb_id}}_conversation">
                         <img class='conversation__image' src="../images/test.jpg" />
                         <span class='preview__data'>
                             <span class='name__time'>
@@ -41,24 +41,20 @@
                         <span class='message__preview'>How are you</span>
                         </span>
 
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>
-
+        <!--
         <div class='conversation__container'>
             <div class='recipients__container'>
-                <img class='recipient__image' src='../images/test.jpg'>
-                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
                 <img class='recipient__image' src='../images/user.png'>Billy Madison,
-                <img class='recipient__image' src='../images/test.jpg'>
-                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
                 <img class='recipient__image' src='../images/user.png'>Billy Madison,
-                <img class='recipient__image' src='../images/test.jpg'>
-                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
                 <img class='recipient__image' src='../images/user.png'>Billy Madison,
-                <img class='recipient__image' src='../images/test.jpg'>
-                Brian Zimmerman, 
+                <img class='recipient__image' src='../images/test.jpg'> Brian Zimmerman,
                 <img class='recipient__image' src='../images/user.png'>Billy Madison
             </div>
             <div class='messages__container'>
@@ -121,19 +117,19 @@
                     </button>
                 </form>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <script id='conversation__template' type='text/template'>
-        <li class='conversation' id="{{pb_id}}_conversation">
+        <li class='conversation' data-conversation="{{pb_id}}__conversation">
             <i class='fa fa-circle' aria-hidden='true'></i>
             <img class='conversation__image' src="{{image}}" />
             <span class='preview__data'>
                 <span class='name__time'>
                         <span class='names'>{{names}}</span>
-                <span class='time'>{{last_updated}}</span>
-                </span>
-                <span class='message__preview'>{{message}}</span>
+            <span class='time'>{{last_updated}}</span>
+            </span>
+            <span class='message__preview'>{{message}}</span>
             </span>
         </li>
     </script>
@@ -153,6 +149,31 @@
                 <span class='message__sender'>{{sender}}</span>
             </div>
         </div>
+    </script>
+
+    <script id='thread__template' type='text/template'>
+        <div class='conversation__container' id="{{pb_id}}__conversation" hidden>
+            <div class='recipients__container'>
+                <!-- recipients -->
+            </div>
+            <div class='messages__container'>
+                <!-- Messages -->
+            </div>
+            <div class='message__input'>
+                <form class='sms__form pure-form'>
+                    <input name='message' class='sms__form__elements pure-input-rounded' placeholder="Message" autocomplete="off" type='text'
+                        autofocus />
+                    <button class='sms__form__elements pure-button pure-button-primary'>
+                                <i class='fa fa-paper-plane' aria-hidden="true"></i>
+                                Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </script>
+
+    <script id="recipient__image__template" type="text/template">
+        <img class='recipient__image' src="{{image_src}}">
     </script>
 
     <script src='../js/index.js'></script>

@@ -32,12 +32,10 @@
     width: 300px;
 }
 
-#conversations {
+.conversations {
     overflow-x: hidden;
     overflow-y: auto;
-
     height: 100%;
-    
 }
 
 .conversations__list {
@@ -82,6 +80,7 @@
 
 .preview__data {
     overflow: hidden;
+    width: 100%;
 }
 
 .names {
@@ -150,6 +149,7 @@
     overflow-x:auto;
     overflow-y: hidden;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .recipient__divider {
