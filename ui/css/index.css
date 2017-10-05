@@ -260,10 +260,10 @@
 }
 
 .fa-circle {
-    color: #a1d6e2;
+    color: #FFE0C6;
     position: absolute;
-    top: 5px;
-    left: 280px;
+    top: 15px;
+    left: 15px;
 }
 
 ::-webkit-scrollbar {

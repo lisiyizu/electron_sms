@@ -30,15 +30,18 @@ socket.onmessage = (message) => {
             .then((res) => {
                 res.thread.every((message, index) => {
                     if (message.timestamp == timestamp) {
+                        if(!message.recipient_index){
+                            message.recipient_index = 0;
+                        }
                         thread.messages = [message];
                         return false;
                     }
                 })
                 return Thread.find({ pb_id: pb_id })
             })
-            .then((thread) => {
-                if (thread) {
-                    return { threads: [thread] };
+            .then((threads) => {
+                if (threads.length) {
+                    return { threads: threads };
                 } else {
                     return request({
                         uri: `${api_url}/v2/permanents/${config.device_iden}_threads`,
@@ -49,12 +52,12 @@ socket.onmessage = (message) => {
             })
             .then((threads) => {
                 threads.threads.every((conv, index) => {
-                    if (conv.id == pb_id) {
+                    if (conv.id == pb_id || conv.pb_id == pb_id) {
                         thread.recipients = conv.recipients;
                         return false;
                     }
                 })
-                mainWindow.webContents.send('sms_update', thread);
+                mainWindow.webContents.send('sms_update', JSON.stringify(thread));
             })
             .catch((err) => {
                 console.log(err);

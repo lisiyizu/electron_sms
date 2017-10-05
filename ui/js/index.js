@@ -5,7 +5,7 @@ const Mustache = require('mustache');
 const moment = require('moment');
 
 const userImage = '../images/user.png';
-const usersImage = '../images/users.png';
+const usersImage = '../images/group.png';
 
 var lastSelected, mainWindow, allThreads = {};
 var mainContainer = $('.main-container');
@@ -19,6 +19,7 @@ ipcRenderer.on('init:threads', function (event, threads) {
 });
 
 ipcRenderer.on('sms_update', function(event, thread) {
+    thread = JSON.parse(thread);
     if(allThreads[thread.pb_id]) {
         var storedThread = allThreads[thread.pb_id];
         fillMessages(
@@ -29,6 +30,15 @@ ipcRenderer.on('sms_update', function(event, thread) {
     } else {
         addConversation(thread);
     }
+    var from = thread.recipients[thread.messages[0].recipient_index].name;
+    var preview = formatMessage(thread.messages[0]);
+    var image = thread.recipients[thread.messages[0].recipient_index].image_url;
+    
+    createNotification({
+        from: from,
+        preview: preview,
+        image: image ? image : userImage
+    });
 });
 
 var addConversation = function(thread) {
@@ -95,6 +105,7 @@ var fillMessages = function (recipients, messages, container, move) {
                     var toAdd = createIncomingImage(url, recipients, message);
                     if(addMessageToContainer(container, message.timestamp, toAdd)) {
                         updatePreview(message, container.parent().attr('id'));
+                        autoScroll(container);                        
                     }
                 });
             }
@@ -102,6 +113,7 @@ var fillMessages = function (recipients, messages, container, move) {
                 var toAdd = createIncomingMessage(recipients, message);
                 if(addMessageToContainer(container, message.timestamp, toAdd)) {
                     updatePreview(message, container.parent().attr('id'));
+                    autoScroll(container);                    
                 }
             }
         } else {
@@ -110,6 +122,7 @@ var fillMessages = function (recipients, messages, container, move) {
                     var toAdd = createOutgoingImage(url, message);
                     if(addMessageToContainer(container, message.timestamp, toAdd)) {
                         updatePreview(message, container.parent().attr('id'));
+                        autoScroll(container);
                     }
                 });
             }
@@ -117,6 +130,7 @@ var fillMessages = function (recipients, messages, container, move) {
                 var toAdd = createOutgoingMessage(message);
                 if(addMessageToContainer(container, message.timestamp, toAdd)) {
                     updatePreview(message, container.parent().attr('id'));
+                    autoScroll(container);
                 }
             }
         }
@@ -150,7 +164,9 @@ var updatePreview = function(message, id) {
     $('.message__preview', preview).text(formatMessage(message));
     if(!isLoading && !preview.is(':first-child')) {
         var container = preview.parent();
-        preview.hide().prependTo(container).show('slow');
+        preview.hide().prependTo(container).show('slow');   
+    }
+    if(!isLoading && !preview.hasClass('selected')) {
         preview.find('i').addClass('fa-circle');
     }
 };
@@ -251,4 +267,21 @@ var joinRecipients = function (recipients, char) {
     }
 
     return string;
-} 
+};
+
+var autoScroll = function(container) {
+    if(isLoading) { return; }
+    var newMessage = container.last();
+    console.log(newMessage);
+
+    var clientHeight = container.prop('clientHeight');
+    var scrollTop = container.prop('scrollTop');
+    var scrollHeight = container.prop('scrollHeight');
+    var newMessageHeight = newMessage.innerHeight();
+    var lastMessageHeight = newMessage.prev().innerHeight();
+
+    if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        container.animate({scrollTop:scrollHeight});
+        console.log('scrolling');
+    }
+};
