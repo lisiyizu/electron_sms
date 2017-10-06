@@ -190,7 +190,6 @@ var formatTime = function(seconds) {
 
 var formatMessage = function(message) {
     if (message.body) {
-        console.log(twemoji.parse(escapeHTML(message.body)));
         return twemoji.parse(escapeHTML(message.body));
     } else if (message.image_urls && message.image_urls.length) {
         if (message.direction == 'incoming')

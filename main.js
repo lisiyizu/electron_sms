@@ -55,8 +55,7 @@ socket.onmessage = (message) => {
 
 ipcMain.on('ignore_next', (event, ignore) => {
     ignoreNext = true;
-    console.log('ignore');
-})
+});
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({});
@@ -70,6 +69,7 @@ app.on('ready', () => {
         app.quit();
     });
 
+    process.env.NODE_ENV = 'production';
     if (process.env.NODE_ENV === 'production')
         mainWindow.setMenu(null); //For No menu
 
@@ -116,6 +116,44 @@ let updateMessages = () => {
 };
 
 let updateThread = (pb_id, timestamp, ignoreIncoming) => {
+    retrieveMessages(pb_id, timestamp, ignoreIncoming, (res, thread) => {
+        res.thread.every((message, index) => {
+            if (message.timestamp >= timestamp) {
+                if (!message.recipient_index) {
+                    message.recipient_index = 0;
+                }
+                if ((ignoreIncoming && message.direction == 'incoming') || !ignoreIncoming) {
+                    thread.messages.push(message);
+                    waitForImages(pb_id, message.timestamp, ignoreIncoming);
+                    return false;
+                }
+            }
+        });
+        return Thread.find({ pb_id: pb_id })
+    });
+};
+
+var waitForImages = (pb_id, timestamp, ignoreIncoming) => {
+    setTimeout(() => {
+        retrieveMessages(pb_id, timestamp, ignoreIncoming, (res, thread) => {
+            res.thread.every((message, index) => {
+                if (message.timestamp == timestamp) {
+                    if (!message.recipient_index) {
+                        message.recipient_index = 0;
+                    }
+                    if ((ignoreIncoming && message.direction == 'incoming') || !ignoreIncoming) {
+                        message.body = "";
+                        thread.messages.push(message);
+                        return false;
+                    }
+                }
+            });
+            return Thread.find({ pb_id: pb_id })
+        });
+    }, 5000);
+}
+
+let retrieveMessages = (pb_id, timestamp, ignoreIncoming, callback) => {
     let thread = {
         pb_id,
         last_updated: timestamp,
@@ -127,18 +165,7 @@ let updateThread = (pb_id, timestamp, ignoreIncoming) => {
         json: true
     })
         .then((res) => {
-            res.thread.every((message, index) => {
-                if (message.timestamp >= timestamp) {
-                    if (!message.recipient_index) {
-                        message.recipient_index = 0;
-                    }
-                    if ((ignoreIncoming && message.direction == 'incoming') || !ignoreIncoming) {
-                        thread.messages.push(message);
-                        return false;
-                    }
-                }
-            });
-            return Thread.find({ pb_id: pb_id })
+            return callback(res, thread);
         })
         .then((threads) => {
             if (threads.length) {
@@ -163,4 +190,4 @@ let updateThread = (pb_id, timestamp, ignoreIncoming) => {
         .catch((err) => {
             console.log(err);
         });
-}
+};
