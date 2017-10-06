@@ -19,7 +19,7 @@ socket.onmessage = (message) => {
     let data = JSON.parse(message.data);
     if (data.type === 'push' && data.push.type === 'sms_changed') {
         if (data.push.notifications.length == 0) {
-            if(ignoreNext) {
+            if (ignoreNext) {
                 ignoreNext = false;
                 return;
             }
@@ -30,10 +30,10 @@ socket.onmessage = (message) => {
             })
                 .then((threads) => {
                     threads.threads.forEach((thread) => {
-                        if(history[thread.id] && history[thread.id] < thread.latest.timestamp){
+                        if (history[thread.id] && history[thread.id] < thread.latest.timestamp) {
                             updateThread(thread.id, history[thread.id]);
                             history[thread.id] = thread.latest.timestamp;
-                        } else if(!history[thread.id]) {
+                        } else if (!history[thread.id]) {
                             updateThread(thread.id, 0);
                             history[thread.id] = thread.latest.timestamp;
                         }
