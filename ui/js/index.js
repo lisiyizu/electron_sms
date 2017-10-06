@@ -78,7 +78,47 @@ var resetListeners = function () {
         $('.messages__container', conversation)
             .scrollTop($('.messages__container', conversation)[0].scrollHeight);
     });
+
+    $('.sms__form').on('submit', function(event) {
+        event.preventDefault();
+        var sendingSMS = $('.sending__sms');
+        var messageInput = $(this).find('[name=message]');
+        sendingSMS.show();
+        var messageText = messageInput.val();
+        var pb_id = getCurrentPBID();
+        if(pb_id) {
+            sendText(allThreads[pb_id].recipients, messageText)
+                .then((res) => {
+                    sendingSMS.hide();
+                    messageInput.val('');
+                    ipcRenderer.send('ignore_next', true);
+                    var message = {
+                        body: messageText,
+                        timestamp: Date.now() / 1000
+                    };
+                    var container = $('.messages__container',allThreads[pb_id].conversationContainer);
+                    var toAdd = createOutgoingMessage(message);
+                    addMessageToContainer(container, message.timestamp, toAdd);
+                    updatePreview(message, container.parent().attr('id'));
+                    autoScroll(container);
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        } else {
+            ;
+        }
+    })
 }
+
+var getCurrentPBID = function() {
+    if(lastSelected) {
+        var idx = $(lastSelected).data('conversation').indexOf('_');
+        return idx == -1 ? undefined : $(lastSelected).data('conversation').substr(0, idx);
+    } else {
+        return undefined;
+    }
+};
 
 var initConversation = function (thread) {
     addConversationSelector(thread);

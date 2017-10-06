@@ -11,12 +11,19 @@ const { Thread } = require('./db/models/thread');
 
 const api_url = 'https://api.pushbullet.com';
 let history = {};
+let mainWindow;
+let ignoreNext = false;
 
 let socket = new WebSocket(`wss://stream.pushbullet.com/subscribe/${config['access_token']}`);
 socket.onmessage = (message) => {
     let data = JSON.parse(message.data);
+    console.log(message.data);
     if (data.type === 'push' && data.push.type === 'sms_changed') {
         if (data.push.notifications.length == 0) {
+            if(ignoreNext) {
+                ignoreNext = false;
+                return;
+            }
             return request({
                 uri: `${api_url}/v2/permanents/${config.device_iden}_threads`,
                 headers: { 'Access-Token': config.access_token },
@@ -39,16 +46,22 @@ socket.onmessage = (message) => {
         } else {
             updateThread(
                 data.push.notifications[0].thread_id,
-                data.push.notifications[0].timestamp
+                data.push.notifications[0].timestamp,
+                true
             );
+            history[data.push.notifications[0].thread_id] = data.push.notifications[0].timestamp;
         }
     }
 };
 
-let mainWindow;
+ipcMain.on('ignore_next', (event, ignore) => {
+    ignoreNext = true;
+    console.log('ignore');
+})
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({});
+    mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'ui', 'html', 'index.html'),
         protocol: 'file:',
@@ -103,7 +116,7 @@ let updateMessages = () => {
         });
 };
 
-let updateThread = (pb_id, timestamp) => {
+let updateThread = (pb_id, timestamp, ignoreIncoming) => {
     let thread = {
         pb_id,
         last_updated: timestamp,
@@ -117,13 +130,15 @@ let updateThread = (pb_id, timestamp) => {
         .then((res) => {
             res.thread.every((message, index) => {
                 if (message.timestamp >= timestamp) {
-                    if(!message.recipient_index){
+                    if (!message.recipient_index) {
                         message.recipient_index = 0;
                     }
-                    thread.messages.push(message);
-                    return false;
+                    if ((ignoreIncoming && message.direction == 'incoming') || !ignoreIncoming) {
+                        thread.messages.push(message);
+                        return false;
+                    }
                 }
-            })
+            });
             return Thread.find({ pb_id: pb_id })
         })
         .then((threads) => {
