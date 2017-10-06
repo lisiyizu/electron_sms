@@ -87,6 +87,8 @@ var resetListeners = function () {
         var messageText = messageInput.val();
         var pb_id = getCurrentPBID();
         if(pb_id) {
+            $('.fa-exclamation-circle', allThreads[pb_id].conversationContainer).hide();                    
+            var container = $('.messages__container',allThreads[pb_id].conversationContainer);            
             sendText(allThreads[pb_id].recipients, messageText)
                 .then((res) => {
                     sendingSMS.hide();
@@ -96,14 +98,14 @@ var resetListeners = function () {
                         body: messageText,
                         timestamp: Date.now() / 1000
                     };
-                    var container = $('.messages__container',allThreads[pb_id].conversationContainer);
                     var toAdd = createOutgoingMessage(message);
                     addMessageToContainer(container, message.timestamp, toAdd);
                     updatePreview(message, container.parent().attr('id'));
                     autoScroll(container);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    sendingSMS.hide();
+                    $('.fa-exclamation-circle', allThreads[pb_id].conversationContainer).show();
                 })
         } else {
             ;
@@ -188,7 +190,8 @@ var formatTime = function(seconds) {
 
 var formatMessage = function(message) {
     if (message.body) {
-        return message.body
+        console.log(twemoji.parse(escapeHTML(message.body)));
+        return twemoji.parse(escapeHTML(message.body));
     } else if (message.image_urls && message.image_urls.length) {
         if (message.direction == 'incoming')
             return 'You recieved a picture';
@@ -199,10 +202,26 @@ var formatMessage = function(message) {
     }
 };
 
+var escapeHTML = function (string) {
+    var entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    };
+    return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+        return entityMap[s];
+    });
+};
+
 var updatePreview = function(message, id) {
     var preview = $("[data-conversation="+id+"]");
     $('.time', preview).text(formatTime(message.timestamp));
-    $('.message__preview', preview).text(formatMessage(message));
+    $('.message__preview', preview).html(formatMessage(message));
     if(!isLoading && !preview.is(':first-child')) {
         var container = preview.parent();
         preview.hide().prependTo(container).show('slow');   
@@ -258,19 +277,19 @@ var makeRecipientsList = function (recipients) {
 
 var createOutgoingMessage = function (message) {
     var messageTemplate = $('#message__to').html();
-    return Mustache.render(messageTemplate, {
+    return twemoji.parse(Mustache.render(messageTemplate, {
         message: message.body,
         timestamp: message.timestamp
-    });
+    }));
 }
 
 var createIncomingMessage = function (recipients, message) {
     var messageTemplate = $('#message__from').html();
-    return Mustache.render(messageTemplate, {
+    return twemoji.parse(Mustache.render(messageTemplate, {
         message: message.body,
         sender: (recipients.length > 1) ? recipients[message.recipient_index].name : "",
         timestamp: message.timestamp
-    });
+    }));
 };
 
 var addConversationSelector = function (thread) {

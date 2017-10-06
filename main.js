@@ -17,7 +17,6 @@ let ignoreNext = false;
 let socket = new WebSocket(`wss://stream.pushbullet.com/subscribe/${config['access_token']}`);
 socket.onmessage = (message) => {
     let data = JSON.parse(message.data);
-    console.log(message.data);
     if (data.type === 'push' && data.push.type === 'sms_changed') {
         if (data.push.notifications.length == 0) {
             if(ignoreNext) {

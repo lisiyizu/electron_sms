@@ -282,6 +282,20 @@
     left: 15px;
 }
 
+.fa-exclamation-circle {
+    color: red;
+    position: absolute;
+    bottom: 16px;
+    right: 90px;
+}
+
+img.emoji {
+   height: 1em;
+   width: 1em;
+   margin: 0 .05em 0 .1em;
+   vertical-align: -0.1em;
+ }
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
