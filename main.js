@@ -10,58 +10,38 @@ const { mongoose } = require('./db/mongoose');
 const { Thread } = require('./db/models/thread');
 
 const api_url = 'https://api.pushbullet.com';
+let history = {};
 
-let socket = new WebSocket(`wss://stream.pushbullet.com/websocket/${config['access_token']}`);
+let socket = new WebSocket(`wss://stream.pushbullet.com/subscribe/${config['access_token']}`);
 socket.onmessage = (message) => {
     let data = JSON.parse(message.data);
     if (data.type === 'push' && data.push.type === 'sms_changed') {
-        if (data.push.notifications.length == 0) { return; }
-        let pb_id = data.push.notifications[0].thread_id;
-        let timestamp = data.push.notifications[0].timestamp;
-        let thread = {
-            pb_id,
-            last_updated: timestamp
-        };
-        request({
-            uri: `${api_url}/v2/permanents/${config.device_iden}_thread_${pb_id}`,
-            headers: { 'Access-Token': config.access_token },
-            json: true
-        })
-            .then((res) => {
-                res.thread.every((message, index) => {
-                    if (message.timestamp == timestamp) {
-                        if(!message.recipient_index){
-                            message.recipient_index = 0;
+        if (data.push.notifications.length == 0) {
+            return request({
+                uri: `${api_url}/v2/permanents/${config.device_iden}_threads`,
+                headers: { 'Access-Token': config.access_token },
+                json: true
+            })
+                .then((threads) => {
+                    threads.threads.forEach((thread) => {
+                        if(history[thread.id] && history[thread.id] < thread.latest.timestamp){
+                            updateThread(thread.id, history[thread.id]);
+                            history[thread.id] = thread.latest.timestamp;
+                        } else if(!history[thread.id]) {
+                            updateThread(thread.id, 0);
+                            history[thread.id] = thread.latest.timestamp;
                         }
-                        thread.messages = [message];
-                        return false;
-                    }
-                })
-                return Thread.find({ pb_id: pb_id })
-            })
-            .then((threads) => {
-                if (threads.length) {
-                    return { threads: threads };
-                } else {
-                    return request({
-                        uri: `${api_url}/v2/permanents/${config.device_iden}_threads`,
-                        headers: { 'Access-Token': config.access_token },
-                        json: true
                     });
-                }
-            })
-            .then((threads) => {
-                threads.threads.every((conv, index) => {
-                    if (conv.id == pb_id || conv.pb_id == pb_id) {
-                        thread.recipients = conv.recipients;
-                        return false;
-                    }
                 })
-                mainWindow.webContents.send('sms_update', JSON.stringify(thread));
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+                .catch((err) => {
+                    console.log(err);
+                });
+        } else {
+            updateThread(
+                data.push.notifications[0].thread_id,
+                data.push.notifications[0].timestamp
+            );
+        }
     }
 };
 
@@ -90,6 +70,9 @@ app.on('ready', () => {
         })
         .then((threads) => {
             mainWindow.webContents.send('init:threads', threads);
+            threads.forEach((thread) => {
+                history[thread.pb_id] = thread.last_updated;
+            })
         });
 });
 
@@ -119,3 +102,51 @@ let updateMessages = () => {
             return added;
         });
 };
+
+let updateThread = (pb_id, timestamp) => {
+    let thread = {
+        pb_id,
+        last_updated: timestamp,
+        messages: []
+    };
+    request({
+        uri: `${api_url}/v2/permanents/${config.device_iden}_thread_${pb_id}`,
+        headers: { 'Access-Token': config.access_token },
+        json: true
+    })
+        .then((res) => {
+            res.thread.every((message, index) => {
+                if (message.timestamp >= timestamp) {
+                    if(!message.recipient_index){
+                        message.recipient_index = 0;
+                    }
+                    thread.messages.push(message);
+                    return false;
+                }
+            })
+            return Thread.find({ pb_id: pb_id })
+        })
+        .then((threads) => {
+            if (threads.length) {
+                return { threads: threads };
+            } else {
+                return request({
+                    uri: `${api_url}/v2/permanents/${config.device_iden}_threads`,
+                    headers: { 'Access-Token': config.access_token },
+                    json: true
+                });
+            }
+        })
+        .then((threads) => {
+            threads.threads.every((conv, index) => {
+                if (conv.id == pb_id || conv.pb_id == pb_id) {
+                    thread.recipients = conv.recipients;
+                    return false;
+                }
+            })
+            mainWindow.webContents.send('sms_update', JSON.stringify(thread));
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}

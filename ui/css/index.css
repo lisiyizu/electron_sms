@@ -1,3 +1,4 @@
+@import './src/loaders'; /* spinThatShit */
 
 .loading {
     margin: 0;
@@ -11,6 +12,23 @@
     width: 50px;
     height: 50px;
 
+}
+
+.sending__sms {
+    border: 3px solid lightgray;
+    border-top: 3px solid #3f67cb;
+    border-radius: 50%;
+    position: absolute;
+    animation: spin 750ms linear infinite;
+    width: 11px;
+    height: 11px;
+    bottom: 16px;
+    right: 90px; 
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .chat {
@@ -267,8 +285,8 @@
 }
 
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 ::-webkit-scrollbar-track {
   border-radius: 10px;

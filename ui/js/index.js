@@ -29,6 +29,7 @@ ipcRenderer.on('sms_update', function(event, thread) {
         );
     } else {
         addConversation(thread);
+        resetListeners();
     }
     var from = thread.recipients[thread.messages[0].recipient_index].name;
     var preview = formatMessage(thread.messages[0]);
@@ -272,7 +273,6 @@ var joinRecipients = function (recipients, char) {
 var autoScroll = function(container) {
     if(isLoading) { return; }
     var newMessage = container.last();
-    console.log(newMessage);
 
     var clientHeight = container.prop('clientHeight');
     var scrollTop = container.prop('scrollTop');
@@ -282,6 +282,5 @@ var autoScroll = function(container) {
 
     if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
         container.animate({scrollTop:scrollHeight});
-        console.log('scrolling');
     }
 };
