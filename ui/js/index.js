@@ -18,9 +18,9 @@ ipcRenderer.on('init:threads', function (event, threads) {
     $('.conversation:first-child').click();
 });
 
-ipcRenderer.on('sms_update', function(event, thread) {
+ipcRenderer.on('sms_update', function (event, thread) {
     thread = JSON.parse(thread);
-    if(allThreads[thread.pb_id]) {
+    if (allThreads[thread.pb_id]) {
         var storedThread = allThreads[thread.pb_id];
         fillMessages(
             storedThread.recipients,
@@ -31,18 +31,19 @@ ipcRenderer.on('sms_update', function(event, thread) {
         addConversation(thread);
         resetListeners();
     }
-    var from = thread.recipients[thread.messages[0].recipient_index].name;
-    var preview = formatMessage(thread.messages[0]);
-    var image = thread.recipients[thread.messages[0].recipient_index].image_url;
-    
-    createNotification({
-        from: from,
-        preview: preview,
-        image: image ? image : userImage
-    });
+    if (thread.messages[0].direction == 'incoming') {
+        var from = thread.recipients[thread.messages[0].recipient_index].name;
+        var preview = formatMessage(thread.messages[0]);
+        var image = thread.recipients[thread.messages[0].recipient_index].image_url;
+        createNotification({
+            from: from,
+            preview: preview,
+            image: image ? image : userImage
+        });
+    }
 });
 
-var addConversation = function(thread) {
+var addConversation = function (thread) {
     var conversationContainer = initConversation(thread);
     mainContainer.append(conversationContainer);
     allThreads[thread.pb_id] = {
@@ -79,7 +80,7 @@ var resetListeners = function () {
             .scrollTop($('.messages__container', conversation)[0].scrollHeight);
     });
 
-    $('.sms__form').on('submit', function(event) {
+    $('.sms__form').on('submit', function (event) {
         event.preventDefault();
 
         var sendingSMS = $('.sending__sms');
@@ -88,13 +89,13 @@ var resetListeners = function () {
         sendingSMS.show();
 
         var messageText = messageInput.val();
-        if(messageText.trim() == '') { return; }
+        if (messageText.trim() == '') { return; }
 
         var pb_id = getCurrentPBID();
-        
-        if(pb_id) {
-            $('.fa-exclamation-circle', allThreads[pb_id].conversationContainer).hide();                    
-            var container = $('.messages__container',allThreads[pb_id].conversationContainer);            
+
+        if (pb_id) {
+            $('.fa-exclamation-circle', allThreads[pb_id].conversationContainer).hide();
+            var container = $('.messages__container', allThreads[pb_id].conversationContainer);
             sendText(allThreads[pb_id].recipients, messageText)
                 .then((res) => {
                     sendingSMS.hide();
@@ -119,8 +120,8 @@ var resetListeners = function () {
     })
 }
 
-var getCurrentPBID = function() {
-    if(lastSelected) {
+var getCurrentPBID = function () {
+    if (lastSelected) {
         var idx = $(lastSelected).data('conversation').indexOf('_');
         return idx == -1 ? undefined : $(lastSelected).data('conversation').substr(0, idx);
     } else {
@@ -152,24 +153,24 @@ var fillMessages = function (recipients, messages, container, move) {
             if (message.image_urls) {
                 message.image_urls.forEach(function (url) {
                     var toAdd = createIncomingImage(url, recipients, message);
-                    if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                    if (addMessageToContainer(container, message.timestamp, toAdd)) {
                         updatePreview(message, container.parent().attr('id'));
-                        autoScroll(container);                        
+                        autoScroll(container);
                     }
                 });
             }
             if (message.body) {
                 var toAdd = createIncomingMessage(recipients, message);
-                if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                if (addMessageToContainer(container, message.timestamp, toAdd)) {
                     updatePreview(message, container.parent().attr('id'));
-                    autoScroll(container);                    
+                    autoScroll(container);
                 }
             }
         } else {
             if (message.image_urls) {
                 message.image_urls.forEach(function (url) {
                     var toAdd = createOutgoingImage(url, message);
-                    if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                    if (addMessageToContainer(container, message.timestamp, toAdd)) {
                         updatePreview(message, container.parent().attr('id'));
                         autoScroll(container);
                     }
@@ -177,7 +178,7 @@ var fillMessages = function (recipients, messages, container, move) {
             }
             if (message.body) {
                 var toAdd = createOutgoingMessage(message);
-                if(addMessageToContainer(container, message.timestamp, toAdd)) {
+                if (addMessageToContainer(container, message.timestamp, toAdd)) {
                     updatePreview(message, container.parent().attr('id'));
                     autoScroll(container);
                 }
@@ -186,7 +187,7 @@ var fillMessages = function (recipients, messages, container, move) {
     });
 };
 
-var formatTime = function(seconds) { 
+var formatTime = function (seconds) {
     if ((Date.now() / 1000) - seconds < 86400) {
         return moment.unix(seconds).format('LT');
     } else {
@@ -194,7 +195,7 @@ var formatTime = function(seconds) {
     }
 };
 
-var formatMessage = function(message) {
+var formatMessage = function (message) {
     if (message.body) {
         return twemoji.parse(escapeHTML(message.body));
     } else if (message.image_urls && message.image_urls.length) {
@@ -223,15 +224,15 @@ var escapeHTML = function (string) {
     });
 };
 
-var updatePreview = function(message, id) {
-    var preview = $("[data-conversation="+id+"]");
+var updatePreview = function (message, id) {
+    var preview = $("[data-conversation=" + id + "]");
     $('.time', preview).text(formatTime(message.timestamp));
     $('.message__preview', preview).html(formatMessage(message));
-    if(!isLoading && !preview.is(':first-child')) {
+    if (!isLoading && !preview.is(':first-child')) {
         var container = preview.parent();
-        preview.hide().prependTo(container).show('slow');   
+        preview.hide().prependTo(container).show('slow');
     }
-    if(!isLoading && !preview.hasClass('selected')) {
+    if (!isLoading && !preview.hasClass('selected') && message.direction == 'incoming') {
         preview.find('i').addClass('fa-circle');
     }
 };
@@ -334,8 +335,8 @@ var joinRecipients = function (recipients, char) {
     return string;
 };
 
-var autoScroll = function(container) {
-    if(isLoading) { return; }
+var autoScroll = function (container) {
+    if (isLoading) { return; }
     var newMessage = container.last();
 
     var clientHeight = container.prop('clientHeight');
@@ -344,7 +345,7 @@ var autoScroll = function(container) {
     var newMessageHeight = newMessage.innerHeight();
     var lastMessageHeight = newMessage.prev().innerHeight();
 
-    if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
-        container.animate({scrollTop:scrollHeight});
+    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        container.animate({ scrollTop: scrollHeight });
     }
 };
