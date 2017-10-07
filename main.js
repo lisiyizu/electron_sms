@@ -143,7 +143,7 @@ var waitForImages = (pb_id, timestamp, ignoreIncoming) => {
                     }
                     if ((ignoreIncoming && message.direction == 'incoming') || !ignoreIncoming) {
                         message.body = "";
-                        thread.messages.push(message);
+                        if(message.image_urls) { thread.messages.push(message); }
                         return false;
                     }
                 }

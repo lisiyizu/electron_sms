@@ -81,11 +81,17 @@ var resetListeners = function () {
 
     $('.sms__form').on('submit', function(event) {
         event.preventDefault();
+
         var sendingSMS = $('.sending__sms');
         var messageInput = $(this).find('[name=message]');
+
         sendingSMS.show();
+
         var messageText = messageInput.val();
+        if(messageText.trim() == '') { return; }
+
         var pb_id = getCurrentPBID();
+        
         if(pb_id) {
             $('.fa-exclamation-circle', allThreads[pb_id].conversationContainer).hide();                    
             var container = $('.messages__container',allThreads[pb_id].conversationContainer);            
