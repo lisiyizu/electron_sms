@@ -59,7 +59,7 @@ ipcMain.on('ignore_next', (event, ignore) => {
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({});
-    mainWindow.maximize();
+    //mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'ui', 'html', 'index.html'),
         protocol: 'file:',
@@ -69,7 +69,7 @@ app.on('ready', () => {
         app.quit();
     });
 
-    process.env.NODE_ENV = 'production';
+    //process.env.NODE_ENV = 'production';
     if (process.env.NODE_ENV === 'production')
         mainWindow.setMenu(null); //For No menu
 

@@ -20,6 +20,7 @@ ipcRenderer.on('init:threads', function (event, threads) {
 
 ipcRenderer.on('sms_update', function (event, thread) {
     thread = JSON.parse(thread);
+    if(thread.messages.length == 0) { return; }
     if (allThreads[thread.pb_id]) {
         var storedThread = allThreads[thread.pb_id];
         fillMessages(
@@ -31,6 +32,7 @@ ipcRenderer.on('sms_update', function (event, thread) {
         addConversation(thread);
         resetListeners();
     }
+    console.log(thread.messages)
     if (thread.messages[0].direction == 'incoming') {
         var from = thread.recipients[thread.messages[0].recipient_index].name;
         var preview = formatMessage(thread.messages[0]);
@@ -117,6 +119,12 @@ var resetListeners = function () {
         } else {
             ;
         }
+    });
+
+    $('.image__test').on('submit', function(e) {
+        e.preventDefault();
+        var fileInput = $(this).find('[name=file]');
+        uploadLocalImage(fileInput[0].files[0]);
     })
 }
 

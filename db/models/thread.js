@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
+const {Contact} = require('./contact');
+
 let threadSchema = new mongoose.Schema({
     pb_id: {
         type: String,
@@ -76,6 +78,17 @@ threadSchema.methods.updateMessages = function(messages){
     thread.last_updated = last_updated;
     thread.messages = thread.messages.concat(toAdd);
     return thread.save()
+        .then(() => {
+            thread.recipients.forEach((recipient) => {
+                Contact.findOne({address: recipient.address})
+                    .then((contact) => {
+                        if(!contact) {
+                            contact = new Contact(recipient);
+                            contact.save();
+                        }
+                    });
+            });
+        })
         .then(() => {
             return {
                 id: thread.pb_id,
