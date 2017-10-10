@@ -20,19 +20,41 @@
 
     <div class='main-container' hidden>
         <div class='conversations__sidebar'>
-            <div class='conversations'>
-                <ul class='conversations__list'>
+            <div class='list__container conversations'>
+                <ul class='list conversations__list'>
                 </ul>
             </div>
-            <!-- <div class='new__thread'>
+            <div class='sidebar__footer'>
+                <button class="footer__button new__thread__button pure-button pure-button-primary">
+                    <i class='fa fa-plus fa-lg' aria-hidden="true"></i>
+                    New Conversation
+                </button>
+            </div>
+        </div>
+        <div class="slideBar new__thread__sidebar pure-form">
+            <span class='contacts__header'>
+                <input type='text' class='search__contacts pure-input-rounded' placeholder="Search Contacts" />
+                <i class="fa fa-times fa-lg closebtn" aria-hidden="true"></i>
+            </span>
+            <div class='list__container contacts'>
+                <ul class='list contacts__list'></ul>
+            </div>
+            <div class='sidebar__footer new__thread__form'>
+                <textarea class='new__thread__message' placeholder="Message"></textarea>
+                <button class='footer__button new__thread__send pure-button pure-button-primary'>
+                    <i class='fa fa-paper-plane fa-lg' aria-hidden="true"></i>
+                    Send Message
+                </button>
+            </div>
+        </div>
+        <div class='slideBar new__thread__message pure-form'>
 
-            </div> -->
         </div>
         <div class='sending__sms' hidden></div>
     </div>
 
     <script id='conversation__template' type='text/template'>
-        <li class='conversation' data-conversation="{{pb_id}}__conversation">
+        <li class='list__item conversation' data-conversation="{{pb_id}}__conversation">
             <i class='fa' aria-hidden='true'></i>
             <img class='conversation__image' src="{{image}}" />
             <span class='preview__data'>
@@ -107,6 +129,13 @@
 
     <script id="recipient__image__template" type="text/template">
         <img class='recipient__image' src="{{image_src}}">
+    </script>
+
+    <script id='contact__list__item' type='text/template'>
+        <li class='list__item contact' data-address='{{address}}'>
+            <img class='conversation__image' src='{{image_src}}' />
+            <span class='names'>{{name}}</span>
+        </li>
     </script>
 
     <script src="../js/twemoji.js"></script>

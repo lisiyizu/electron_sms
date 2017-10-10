@@ -3,10 +3,12 @@ const WebSocket = require('ws');
 const request = require('request-promise');
 const url = require('url');
 const path = require('path');
+const PhoneNumber = require('phone');
 
 const config = require('./config/config.json');
 const { app, BrowserWindow, Main, ipcMain } = electron;
 const { mongoose } = require('./db/mongoose');
+const { Contact } = require('./db/models/contact');
 const { Thread } = require('./db/models/thread');
 
 const api_url = 'https://api.pushbullet.com';
@@ -74,7 +76,10 @@ app.on('ready', () => {
         mainWindow.setMenu(null); //For No menu
 
     //On startup update/find all texts
-    updateMessages()
+    updateContacts()
+        .then(() => {
+            return updateMessages();
+        })
         .then((threads) => {
             return Thread.find({})
                 .sort({ last_updated: -1 })
@@ -85,7 +90,13 @@ app.on('ready', () => {
             threads.forEach((thread) => {
                 history[thread.pb_id] = thread.last_updated;
             })
-        });
+            return Contact.find({})
+                .sort({ name: 1 })
+                .lean()
+        })
+        .then((contacts) => {
+            mainWindow.webContents.send('init:contacts', contacts);
+        })
 });
 
 let updateMessages = () => {
@@ -143,7 +154,7 @@ var waitForImages = (pb_id, timestamp, ignoreIncoming) => {
                     }
                     if ((ignoreIncoming && message.direction == 'incoming') || !ignoreIncoming) {
                         message.body = "";
-                        if(message.image_urls) { thread.messages.push(message); }
+                        if (message.image_urls) { thread.messages.push(message); }
                         return false;
                     }
                 }
@@ -189,5 +200,34 @@ let retrieveMessages = (pb_id, timestamp, ignoreIncoming, callback) => {
         })
         .catch((err) => {
             console.log(err);
+        });
+};
+
+let updateContacts = () => {
+    return request({
+        uri: api_url + '/v2/permanents/phonebook_' + config.device_iden,
+        json: true,
+        headers: { 'Access-Token': config.access_token }
+    })
+        .then((phonebook) => {
+            phonebook.phonebook.forEach((contact) => {
+                let number = PhoneNumber(contact.phone);
+                if (number.length && contact.phone_type == 'mobile') {
+                    number = number[0];
+                    Contact.findOne({ address: number })
+                        .then((existingContact) => {
+                            if (!existingContact) {
+                                existingContact = new Contact({
+                                    name: contact.name,
+                                    address: number
+                                });
+                                existingContact.save()
+                                    .catch((err) => {
+                                        ;
+                                    })
+                            }
+                        });
+                }
+            });
         });
 };

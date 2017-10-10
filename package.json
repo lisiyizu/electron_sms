@@ -21,6 +21,7 @@
     "mongodb": "^2.2.31",
     "mongoose": "^4.11.13",
     "mustache": "^2.3.0",
+    "phone": "^1.0.12",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "utf8": "^2.1.2",

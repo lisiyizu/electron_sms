@@ -8,6 +8,80 @@
     height: 120px;
 }
 
+.sidebar__footer {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    color: white;
+    box-shadow:
+        0 -1px 6px rgba(0,0,0,0.16),
+        0 -1px 6px rgba(0,0,0,0.23);
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.new__thread__form {
+    height: 100px;
+    flex-shrink: 0;
+}
+
+.new__thread__message {
+    height: 60px;
+    flex-shrink: 0;
+    color: black;
+    resize: none;
+}
+
+.slideBar {
+    height: 100%;
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #3f67cb;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.contacts__header {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-shrink: 0;
+    box-shadow: 
+        0 1px 6px rgba(0,0,0,0.16),
+        0 1px 6px rgba(0,0,0,0.23);
+}
+
+.search__contacts {
+    height: 30px;
+}
+
+.new__thread__sidebar .closebtn {
+    color: white;
+}
+
+.closebtn:hover {
+    color: #CCCCCC;
+}
+
+.footer__button {
+    width: 100%;
+    font-size: 16px;
+    font-weight: 500;
+    height: 40px;
+    /* background-color: inherit; */
+}
+
+.new__thread__send {
+    flex-shrink: 0;
+    /* background-color: #0078e7; */
+}
+
 .loader__outer {
     margin: 0;
     position: absolute;
@@ -89,15 +163,17 @@
     background-color: #3f67cb;
     flex-shrink: 0;
     width: 300px;
+    display: flex;
+    flex-direction: column;
 }
 
-.conversations {
+.list__container {
     overflow-x: hidden;
     overflow-y: auto;
-    height: 100%;
+    flex-grow: 1;
 }
 
-.conversations__list {
+.list {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -113,7 +189,7 @@
     justify-content: space-between;
 }
 
-.conversation {
+.list__item {
     overflow: auto; 
     padding-left: 15px;
     height: 80px;
@@ -122,7 +198,7 @@
     position: relative;
 }
 
-.conversation:not(.selected):hover {
+.list__item:not(.selected):hover {
     background-color: #4952b6;
 }
 
@@ -193,6 +269,10 @@
     padding-left: 5px;
     padding-right: 5px;
     border: 1px solid transparent;
+}
+
+.contact {
+    color: white;
 }
 
 .recipients__container {

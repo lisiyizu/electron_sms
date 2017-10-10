@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
+const PhoneNumber = require('phone');
 
-const {Contact} = require('./contact');
+const { Contact } = require('./contact');
 
 let threadSchema = new mongoose.Schema({
     pb_id: {
@@ -57,13 +58,14 @@ let sortMessages = (a, b) => {
     return a.timestamp - b.timestamp;
 };
 
-threadSchema.methods.updateMessages = function(messages){
+threadSchema.methods.updateMessages = function (messages) {
     let thread = this;
     let last_updated = thread.last_updated;
     let toAdd = [];
+    let contactPromises = [];
     messages = messages.sort(sortMessages);
     messages.forEach((message) => {
-        if(message.timestamp > last_updated)
+        if (message.timestamp > last_updated)
             last_updated = message.timestamp;
         let newMessage = {
             timestamp: message.timestamp,
@@ -72,7 +74,7 @@ threadSchema.methods.updateMessages = function(messages){
             image_urls: message.image_urls ? message.image_urls : [],
             direction: message.direction
         };
-        if(_.findIndex(thread.messages, newMessage) == -1)
+        if (_.findIndex(thread.messages, newMessage) == -1)
             toAdd.push(newMessage);
     });
     thread.last_updated = last_updated;
@@ -80,13 +82,16 @@ threadSchema.methods.updateMessages = function(messages){
     return thread.save()
         .then(() => {
             thread.recipients.forEach((recipient) => {
-                Contact.findOne({address: recipient.address})
-                    .then((contact) => {
-                        if(!contact) {
-                            contact = new Contact(recipient);
-                            contact.save();
-                        }
-                    });
+                let address = PhoneNumber(recipient.address);
+                if(address.length) {
+                    Contact.findOne({ address: address[0] })
+                        .then((existingContact) => {
+                            if (existingContact) {
+                                existingContact.image_url = recipient.image_url;
+                                existingContact.save();
+                            }
+                        });
+                }
             });
         })
         .then(() => {
@@ -99,21 +104,21 @@ threadSchema.methods.updateMessages = function(messages){
         });
 };
 
-threadSchema.statics.findOutdated = function(threads){
+threadSchema.statics.findOutdated = function (threads) {
     let Thread = this;
     let promises = [];
     let finds = []
     threads.forEach((thread) => {
         finds.push(Thread.find({
             pb_id: thread.id
-        })); 
+        }));
     });
     return Promise.all(finds)
         .then((foundThreads) => {
-            for(let idx = 0; idx < foundThreads.length; idx++) {
+            for (let idx = 0; idx < foundThreads.length; idx++) {
                 let foundThread = foundThreads[idx];
                 if (foundThread.length > 0) {
-                    if(foundThread[0].last_updated < threads[idx].latest.timestamp)
+                    if (foundThread[0].last_updated < threads[idx].latest.timestamp)
                         promises.push(foundThread[0]);
                 } else {
                     let foundThread = new Thread({

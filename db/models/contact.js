@@ -10,10 +10,6 @@ let contactSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    number: {
-        type: String,
-        required: true
-    },
     image_url: {
         type: String,
         required: false

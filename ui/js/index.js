@@ -10,6 +10,7 @@ const usersImage = '../images/group.png';
 var lastSelected, mainWindow, allThreads = {};
 var mainContainer = $('.main-container');
 var isLoading = true;
+var addresses = [];
 
 ipcRenderer.on('init:threads', function (event, threads) {
     threads.forEach(addConversation);
@@ -18,9 +19,22 @@ ipcRenderer.on('init:threads', function (event, threads) {
     $('.conversation:first-child').click();
 });
 
+ipcRenderer.on('init:contacts', function(event, contacts) {
+    var contactsList = $('.contacts__list');
+    var li = $('#contact__list__item').html();
+    contacts.forEach(function(contact) {
+        contactsList.append(Mustache.render(li, {
+            image_src: contact.image_url ? contact.image_url : userImage,
+            name: contact.name,
+            address: contact.address
+        }));
+    });
+    setContactListeners();    
+});
+
 ipcRenderer.on('sms_update', function (event, thread) {
     thread = JSON.parse(thread);
-    if(thread.messages.length == 0) { return; }
+    if (thread.messages.length == 0) { return; }
     if (allThreads[thread.pb_id]) {
         var storedThread = allThreads[thread.pb_id];
         fillMessages(
@@ -65,6 +79,51 @@ var setLoading = function (loading) {
         $('.main-container').attr('hidden', false);
     }
     isLoading = loading;
+}
+
+$('.new__thread__button').on('click', function () {
+    $('.new__thread__sidebar').animate({ width: '300px' });
+});
+
+$('.closebtn').on('click', function () {
+    $('.new__thread__sidebar').animate({ width: '0px' });
+});
+
+$('.search__contacts').on('keyup', function () {
+    var key = $(this).val().toUpperCase();
+    $('.contact').each(function () {
+        if ($(this).text().toUpperCase().indexOf(key) < 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+});
+
+$('.new__thread__send').click(function () {
+    addresses = [];
+    $('.contact.selected').each(function () {
+        addresses.push({
+            address: $(this).data('address')
+        });
+    });
+    if (!addresses.length) {
+        ;
+    } else {
+        sendText(
+            addresses,
+            $('.new__thread__message').val()
+        );
+        $('.new__thread__message').val('');
+        $('.contact').removeClass('selected');
+        $('.new__thread__sidebar').animate({ width: '0px' });
+    }
+});
+
+var setContactListeners = function () {
+    $('.contact').click(function () {
+        $(this).toggleClass('selected');
+    });
 }
 
 var resetListeners = function () {
@@ -121,7 +180,7 @@ var resetListeners = function () {
         }
     });
 
-    $('.image__test').on('submit', function(e) {
+    $('.image__test').on('submit', function (e) {
         e.preventDefault();
         var fileInput = $(this).find('[name=file]');
         uploadLocalImage(fileInput[0].files[0]);
